@@ -220,8 +220,10 @@ impl ProgressBarManager {
             let pb = match pb_span_ctx.parent_progress_bar {
                 // TODO(emersonford): fix span ordering in progress bar, because we use
                 // `insert_after`, we end up showing the child progress bars in reverse order.
-                Some(ref parent_pb) => self.mp.insert_after(parent_pb, pb),
-                None => {
+                Some(ref parent_pb) if !parent_pb.is_finished() => {
+                    self.mp.insert_after(parent_pb, pb)
+                }
+                _ => {
                     if self
                         .footer_pb
                         .as_ref()
